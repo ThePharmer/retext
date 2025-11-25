@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retext - SMS Search</title>
+    <style>
+        /* T038: Responsive CSS using flexbox */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        h1 {
+            color: #333;
+            font-size: 1.5rem;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        /* T042: Message count display */
+        .stats {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .logout-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .logout-btn:hover {
+            background: #eee;
+        }
+        /* T034: Search form */
+        .search-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .search-btn {
+            background: #007bff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            /* Touch-friendly size */
+            min-width: 44px;
+            min-height: 44px;
+        }
+        .search-btn:hover {
+            background: #0056b3;
+        }
+        /* T43: Import prompt when no messages */
+        .import-prompt {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .import-prompt h2 {
+            margin-bottom: 0.5rem;
+            color: #856404;
+        }
+        .import-prompt code {
+            background: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        /* Results container */
+        .results-info {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        /* T40: No results message */
+        .no-results {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            color: #666;
+        }
+        /* Message cards */
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .message-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        /* T039: Sent vs received visual distinction */
+        .message-card.sent {
+            background: #dcf8c6;
+            border-left: 4px solid #25d366;
+        }
+        .message-card.received {
+            background: white;
+            border-left: 4px solid #007bff;
+        }
+        /* T036: Message content styling */
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        .contact-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .message-date {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        .message-body {
+            color: #333;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .message-body mark {
+            background: #ffeb3b;
+            padding: 0 2px;
+        }
+        .message-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .message-type {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .sent .message-type {
+            color: #25d366;
+        }
+        .received .message-type {
+            color: #007bff;
+        }
+        /* T037: Load more button */
+        .load-more {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #007bff;
+        }
+        .load-more:hover {
+            background: #f8f9fa;
+        }
+        .load-more:disabled {
+            color: #999;
+            cursor: not-allowed;
+        }
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        /* T038: Mobile responsive adjustments */
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header-right {
+                justify-content: space-between;
+            }
+            .search-form {
+                flex-direction: column;
+            }
+            .search-btn {
+                width: 100%;
+            }
+            .message-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Retext</h1>
+            <div class="header-right">
+                <span class="stats" id="stats">Loading...</span>
+                <form method="POST" action="{{ url_for('logout') }}" style="display:inline">
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <!-- T043: Import prompt (shown when no messages) -->
+        <div id="import-prompt" class="import-prompt" style="display:none">
+            <h2>No Messages Yet</h2>
+            <p>Import your SMS backup to get started:</p>
+            <p><code>python import_sms.py your-backup.xml</code></p>
+        </div>
+
+        <!-- Search interface (shown when has messages) -->
+        <div id="search-section" style="display:none">
+            <!-- T034: Search form -->
+            <form class="search-form" id="search-form">
+                <input type="text"
+                       class="search-input"
+                       id="search-input"
+                       placeholder="Search messages..."
+                       autocomplete="off">
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+
+            <div id="results-info" class="results-info"></div>
+            <div id="results-container" class="message-list"></div>
+            <button id="load-more" class="load-more" style="display:none">Load More</button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentQuery = '';
+        let currentPage = 1;
+        let hasMore = false;
+
+        // DOM elements
+        const statsEl = document.getElementById('stats');
+        const importPrompt = document.getElementById('import-prompt');
+        const searchSection = document.getElementById('search-section');
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+        const resultsInfo = document.getElementById('results-info');
+        const resultsContainer = document.getElementById('results-container');
+        const loadMoreBtn = document.getElementById('load-more');
+
+        // T044: Fetch and display stats on page load
+        async function loadStats() {
+            try {
+                const response = await fetch('api/stats');
+                if (!response.ok) throw new Error('Failed to load stats');
+                const data = await response.json();
+
+                if (data.has_messages) {
+                    statsEl.textContent = `${data.message_count.toLocaleString()} messages`;
+                    importPrompt.style.display = 'none';
+                    searchSection.style.display = 'block';
+                    searchInput.focus();
+                } else {
+                    statsEl.textContent = '0 messages';
+                    importPrompt.style.display = 'block';
+                    searchSection.style.display = 'none';
+                }
+            } catch (e) {
+                statsEl.textContent = 'Error loading stats';
+            }
+        }
+
+        // T035: Fetch-based search API call
+        async function performSearch(query, page = 1, append = false) {
+            if (!query.trim()) {
+                resultsContainer.innerHTML = '';
+                resultsInfo.textContent = '';
+                loadMoreBtn.style.display = 'none';
+                return;
+            }
+
+            if (!append) {
+                resultsContainer.innerHTML = '<div class="loading">Searching...</div>';
+            } else {
+                loadMoreBtn.textContent = 'Loading...';
+                loadMoreBtn.disabled = true;
+            }
+
+            try {
+                const response = await fetch(`api/search?q=${encodeURIComponent(query)}&page=${page}`);
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Search failed');
+                }
+
+                const data = await response.json();
+                currentQuery = query;
+                currentPage = data.page;
+                hasMore = data.has_more;
+
+                // Update results info
+                resultsInfo.textContent = `Found ${data.total.toLocaleString()} messages`;
+
+                // T036: Render results
+                if (!append) {
+                    resultsContainer.innerHTML = '';
+                }
+
+                if (data.results.length === 0 && !append) {
+                    // T040: No results message
+                    resultsContainer.innerHTML = `
+                        <div class="no-results">
+                            <p>No messages found for "${query}"</p>
+                            <p>Try different search terms</p>
+                        </div>
+                    `;
+                } else {
+                    data.results.forEach(msg => {
+                        resultsContainer.appendChild(renderMessage(msg));
+                    });
+                }
+
+                // T037: Show/hide load more button
+                loadMoreBtn.style.display = hasMore ? 'block' : 'none';
+                loadMoreBtn.textContent = 'Load More';
+                loadMoreBtn.disabled = false;
+
+            } catch (e) {
+                resultsContainer.innerHTML = `<div class="no-results">Error: ${e.message}</div>`;
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        // T036: Render single message card
+        function renderMessage(msg) {
+            const card = document.createElement('div');
+            // T039: Sent vs received styling
+            const typeClass = msg.message_type === 2 ? 'sent' : 'received';
+            const typeLabel = msg.message_type === 2 ? 'Sent' : 'Received';
+            card.className = `message-card ${typeClass}`;
+
+            // Use contact name or fall back to phone number
+            const displayName = msg.contact_name || msg.phone_number;
+
+            card.innerHTML = `
+                <div class="message-header">
+                    <span class="contact-name">${escapeHtml(displayName)}</span>
+                    <span class="message-date">${escapeHtml(msg.formatted_date)}</span>
+                </div>
+                <div class="message-body">${msg.body}</div>
+                <div class="message-meta">
+                    <span class="phone">${escapeHtml(msg.phone_number)}</span>
+                    <span class="message-type">${typeLabel}</span>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        // T034: Search form submission
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            performSearch(searchInput.value, 1, false);
+        });
+
+        // T037: Load more pagination
+        loadMoreBtn.addEventListener('click', () => {
+            performSearch(currentQuery, currentPage + 1, true);
+        });
+
+        // Initialize
+        loadStats();
+    </script>
+</body>
+</html>

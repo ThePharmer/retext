@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<smses count="15" backup_set="sample" backup_date="1732480000000">
+  <sms protocol="0" address="+15551234567" date="1732480000000" type="1" body="Hey, are you coming to the party tonight?" read="1" contact_name="John Doe" />
+  <sms protocol="0" address="+15551234567" date="1732480060000" type="2" body="Yeah definitely! What time does it start?" read="1" contact_name="John Doe" />
+  <sms protocol="0" address="+15551234567" date="1732480120000" type="1" body="Around 8pm. Bring some snacks if you can!" read="1" contact_name="John Doe" />
+  <sms protocol="0" address="+15559876543" date="1732470000000" type="1" body="Don't forget to pick up the groceries on your way home" read="1" contact_name="Mom" />
+  <sms protocol="0" address="+15559876543" date="1732470300000" type="2" body="Got it! Need anything else?" read="1" contact_name="Mom" />
+  <sms protocol="0" address="+15559876543" date="1732470600000" type="1" body="Maybe some milk and eggs too. Thanks honey!" read="1" contact_name="Mom" />
+  <sms protocol="0" address="+15557778888" date="1732460000000" type="1" body="Your package has been delivered to the front door" read="1" contact_name="Amazon Delivery" />
+  <sms protocol="0" address="+15552223333" date="1732450000000" type="2" body="Can you send me the meeting notes from yesterday?" read="1" contact_name="Sarah Work" />
+  <sms protocol="0" address="+15552223333" date="1732450300000" type="1" body="Sure, I'll email them to you in 5 minutes" read="1" contact_name="Sarah Work" />
+  <sms protocol="0" address="+15552223333" date="1732450600000" type="2" body="Thanks! You're the best" read="1" contact_name="Sarah Work" />
+  <sms protocol="0" address="+15554445555" date="1732440000000" type="1" body="Reminder: Your dentist appointment is tomorrow at 2pm" read="1" contact_name="Dr. Smith Office" />
+  <sms protocol="0" address="+15556667777" date="1732430000000" type="2" body="Happy birthday! Hope you have an amazing day!" read="1" contact_name="Best Friend Mike" />
+  <sms protocol="0" address="+15556667777" date="1732430300000" type="1" body="Thank you so much! We should grab dinner soon to celebrate" read="1" contact_name="Best Friend Mike" />
+  <sms protocol="0" address="+15558889999" date="1732420000000" type="1" body="Your verification code is 847293. Do not share this with anyone." read="1" contact_name="" />
+  <sms protocol="0" address="+15551112222" date="1732410000000" type="2" body="Just saw the funniest cat video ever. You need to check it out!" read="1" contact_name="Alex" />
+</smses>
