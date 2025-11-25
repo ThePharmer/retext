@@ -115,7 +115,3 @@ ruff check .
 - Flask (web framework)
 - SQLite with FTS5 (full-text search)
 - Vanilla JavaScript (no framework)
-
-## License
-
-MIT
